@@ -1,13 +1,16 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
-    name ='mirage',
+    name ='script',
     version='0.1.0' ,
-    py_modules=['script'],
+    py_modules=['mirage', 'networking.py'],
     install_requires=[
-        'Click'
+        'Click', 'networking.py'
     ],
     entry_points={
+        'console scripts' : [
+                'mirage = mirage:mirage_entry' 
+        ]
 
     
     }
