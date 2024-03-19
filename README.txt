@@ -11,14 +11,29 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 2) Allow for flexibility by offering a remote option for projects which may involve physically connecting MOTE during the testing phase p
 
-Used Libraries
-1) Click (8.1.x) - python package for creating command line interfaces 
-    https://click.palletsprojects.com/en/8.1.x/
-2) 
+INPUT: 
+- sensor data at any point 
 
-How to set up virtual enviorment 
-Reference: https://click.palletsprojects.com/en/8.1.x/quickstart/
-1) create virtual enviorment (python3 -m venv .venv) 
-2) activate the actual enviorment (. .venv/bin/activate)
-3) if you're done with the virtual enviorment use the following command (deactive)
+OUPUT: 
+- actuator commands received from the GUI 
+Acutator Commands 
+
+0b10000000
+
+First bit- command
+
+
+0b01000000  
+Second bit- the state of the actuator
+
+0b00111111
+Third bit- interface type
+
+
+-s: initiate testing sequence, data will be random number values. 
+
+-md:  prompts user to manually sets sensor values, will not exit until all actuators are set
+
+-ad [data.csv]: sets data points using a specific csv file
+
 
