@@ -11,12 +11,17 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 2) Allow for flexibility by offering a remote option for projects which may involve physically connecting MOTE during the testing phase p
 
+
 INPUT: 
 - sensor data at any point 
 
 OUPUT: 
 - actuator commands received from the GUI 
-Acutator Commands 
+
+
+
+
+Parsing Logic 
 
 0b10000000
 

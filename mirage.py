@@ -1,39 +1,24 @@
 import sys
 import argparse 
-from routine import server
+from components import server
 import time 
+
 #global variables 
 
-start_time = time.time()
-#Function to show status 
-def show_status(input): 
-    print("Start Time: {start_time} \n" )
-    print("Current Time: {time.time()} \n")
-    print("IP Address:  \n")
+network = server()
+network.setup()
+start_time = time.strftime('%I:%M:%S %p %D', time.localtime())
+
+mote_status = [[False, None], [False, None], [False, None], [False, None]]
+last_mote_time = [0, 0, 0, 0]
+
+# value = [sensor["P and ID"], sensor["Interface Type"], sensor["Sensor or Actuator"], sensor["unit"]]
+sensor_dictionary = {'1, 99': ['FireX', None, None, None]}
+actuator_dictionary = {}
+
+actuator_states_and_sensor_tare_states = {}
 
 
-
-#function to parse 2 byte data 
-def parse_command(data): 
-    #checks for correct data size 
-    if len(data) != 2: 
-        print("Packet is incorrect size")
-        return 
-    #Begin parsing packet
-    pin_num = data[0]
-    config_num = data[1]
-    # if largest bit is 1: checks for if data packet is intended to write to an actuator command
-    if (pin_num and 0b10000000) == 0b10000000: 
-        #execute appropriate command
-        pass 
-    #if largest bit is 0: must be a configuration command 
-    else: 
-        interface_num = data.slice(3,7)
-        interface_num = int(config_num) 
-
-        #switch case for the appropriate interface
-        pass 
-        print("ERROR. No interface was found. ")
 
 
     
@@ -64,7 +49,7 @@ def subroutine_for_args(input):
         pass
     elif input == '-status': 
         #subroutine for showing basic information 
-        pass 
+    
         
     
 
@@ -72,9 +57,7 @@ def subroutine_for_args(input):
 
 #actual routine 
 if __name__ == "__main__": 
-    show_status()
-    #initialize server
-    #network = server()
+ 
     
     
 
