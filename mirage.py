@@ -2,6 +2,8 @@ import sys
 import argparse 
 from components import server
 import time 
+import scapy 
+
 
 #global variables 
 
@@ -9,19 +11,10 @@ network = server()
 network.setup()
 start_time = time.strftime('%I:%M:%S %p %D', time.localtime())
 
-mote_status = [[False, None], [False, None], [False, None], [False, None]]
-last_mote_time = [0, 0, 0, 0]
-
-# value = [sensor["P and ID"], sensor["Interface Type"], sensor["Sensor or Actuator"], sensor["unit"]]
-sensor_dictionary = {'1, 99': ['FireX', None, None, None]}
-actuator_dictionary = {}
-
-actuator_states_and_sensor_tare_states = {}
 
 
 
 
-    
 def parse_cli():
     parser = argparse.ArgumentParser()
     parser.add_argument('-start', help='Initiate testing sequence, data will be random number values.')
@@ -49,15 +42,23 @@ def subroutine_for_args(input):
         pass
     elif input == '-status': 
         #subroutine for showing basic information 
-    
+        pass
         
     
 
     
 
-#actual routine 
+#Main function
 if __name__ == "__main__": 
- 
+    network = server()
+    network.setup()
+
+    network.set_fake_ip('192.168.0.2')
+    dst_ip = '127.0.0.1'
+    dst_port = 5001
+
+    network.send_packet(dst_ip, dst_port, 'heartbeat')
+  
     
     
 
