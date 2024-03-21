@@ -23,7 +23,7 @@ IP: 127.0.0.1
 
 * note that they will share the same port, since the address of MOTE is just a spoof 
 *both random
-PORT: 5005 
+PORT: 12345 
 
 
 
