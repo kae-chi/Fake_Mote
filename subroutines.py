@@ -4,7 +4,7 @@ from components import server
 
 my_mote = input("Which Mote Number")
 
-def parse_cli():
+#def parse_cli():
     parser = argparse.ArgumentParser()
     parser.add_argument('-start', help='Initiate testing sequence, data will be random number values.')
     parser.add_argument('-aa','--configuration csv',type=str,help='CSV with specific set of data')
@@ -16,7 +16,7 @@ def parse_cli():
 
 
 #parses argument and calls appropriate subroutine
-def subroutine_for_args(input):
+#def subroutine_for_args(input):
     if input == '-s': 
         #subrouting for initiating generic start sequence
         pass
@@ -41,9 +41,8 @@ def show_status(input):
     print(f"Start Time: {start_time} \n")
     print(f"Current Time: {time.time()} \n")
     print(f"IP Address: {input.get_ip()}")
+    pass 
 
 def start(input): 
     connected = False 
-    input.send
-    
 

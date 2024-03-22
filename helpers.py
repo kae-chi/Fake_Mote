@@ -44,8 +44,8 @@ def get_interface_name(number):
                       'Icarus_ALT', 'Icarus_IMU', 'Volt_Monitor', 'Loop_Timer']
         return interface_list[number]
        
+#function for determining
 
-#function to parse 2 byte data 
 def parse_command(data): 
     #checks for correct data size 
     if len(data) != 2: 
@@ -63,6 +63,7 @@ def parse_command(data):
         return
     #if largest bit is 0: must be a configuration command 
     else: 
+        get_interface_name(pin_num)
         print(f'Sensor Configuration Command: pin {pin_num} can be read using interface {get_interface_name(interface_num)}')
         return 
     
