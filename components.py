@@ -1,7 +1,7 @@
 import sys
 import socket 
 import time
-from helpers import get_interface_name, parse_command
+from helpers import get_interface_name, parse_command, get_config_size
 import scapy.all as scapy
 
 
@@ -43,16 +43,41 @@ class network:
         payload = "Hello UDP!!"
 
         scapy.send(ip/udp/payload)
-    
-
-
-
-    
 
 
 
 
+class sniffer: 
 
-            
+    def __init__(self): 
+        self.actuator_packets = []
+        self.sensor_packets = []
 
+    def process_packet(self, packet): 
+        if packet.haslayer(scapy.IP) and packet.haslayer(scapy.UDP):
+            payload = packet[scapy.UDP].payload
+            if len(payload) >= 2:
+                
+  
+             two_byte_array = payload.load[0:1]
+             binary_representation = ''.join(format(byte, '08b') for byte in two_byte_array)
+
+             print(binary_representation)
+
+               
+
+    def show_packet(self, packet): 
+        print(packet.summary())
+
+
+
+    def split_paths(self, data): 
+        pin_num = data[0]
+        if pin_num == 1: 
+            self.actuator_packets.append(data)
+        else: 
+            self.sensor_packets.append(data)
+
+    def begin_sniffing(self, command): 
+        scapy.sniff(count = get_config_size(command), prn=self.process_packet, store=False)
 

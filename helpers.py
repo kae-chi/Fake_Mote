@@ -1,6 +1,6 @@
 import sys
 import socket 
-import time
+import csv
 import time
 import os
 
@@ -46,6 +46,7 @@ def get_interface_name(number):
        
 #function for determining
 
+
 def parse_command(data): 
     #checks for correct data size 
     if len(data) != 2: 
@@ -67,5 +68,32 @@ def parse_command(data):
         print(f'Sensor Configuration Command: pin {pin_num} can be read using interface {get_interface_name(interface_num)}')
         return 
     
+def get_config_size(file):
+     home_directory = os.path.expanduser('~')
+     
+     # Define the name of the subdirectory within the home directory
+     subdirectory = 'Mirage/configs'
 
-    
+     file_name = file + '.csv'
+     
+     # Combine parts to form a full file path
+
+     full_path = os.path.join(home_directory, subdirectory,file_name)
+
+     print(full_path)
+
+
+     try:
+               with open(full_path, mode='r', encoding='utf-8') as csv_file:
+                    reader = csv.reader(csv_file)
+                    # Skip the header row
+                    next(reader, None)
+                    row_count = 0 
+                    for row in reader:
+                         print(row)
+                         row_count += 1
+                    return row_count
+     except FileNotFoundError:
+               print(f"File not found: {full_path}")
+     except Exception as e:
+               print(f"An error occurred while reading {full_path}: {e}")
