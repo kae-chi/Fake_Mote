@@ -54,11 +54,3 @@ Third through eight bits- packaged interface
 
 0b00111111
 
-
-Setting up a fake mote class 
-
-    fakemote1 = network()
-    fakemote1.setup()
-    fakemote1.set_fake_ip('192.168.0.1')
-    thread1 = threading.Thread(target=send_heartbeat, args=(fakemote1, '127.0.0.1', 8888))
-    thread1.start()  # Start the first thread 
