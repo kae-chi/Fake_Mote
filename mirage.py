@@ -1,7 +1,7 @@
 import time
 import threading
 import scapy.all as scapy
-from helpers import get_interface_name, parse_command, get_config_size
+
 import random 
 
 
@@ -58,10 +58,11 @@ class Sniffer:
                     elif data == bytes([0,44]): 
                         print("resetting!" )
                         self.sensors = {}
-                    else: 
+                    elif len(data) == 2: 
+                        print(hex_parse)
+                        #pin as key with a value of 0 
                         self.sensors[hex_parse[0]] = 0 
-                        print(self.sensors)
-                        print(self.sensors[hex_parse[0]])
+                    
     
         
     def start_sniffing(self):
