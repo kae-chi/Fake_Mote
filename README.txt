@@ -31,11 +31,19 @@ GUI (hosted locally )
 IP: 127.0.0.1
 PORT: 5001 
 
-Get fake mote to listen to packets, then fake mote will pick it up and print 
 
-Return value: pin number + 100 
+Sniffer Design Logic 
 
-Parsing Logic 
+Sensor Dictionary 
+
+Key: Pin number
+Value: [data, interface]
+
+
+Actuator Dictionary 
+Value: [state, Interface] 
+
+Bitmasking and Parsing  Logic 
 
 
 First bit- which command/interface the returned information is for 
