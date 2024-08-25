@@ -12,6 +12,11 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 2) Allow for flexibility by offering a remote option for projects which may involve physically connecting MOTE during the testing phase 
 
 
+
+System Requirements: 
+
+The following program is dependent 
+
 Networking Things 
 
 MOTE 

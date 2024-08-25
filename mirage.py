@@ -2,20 +2,31 @@ import time
 import threading
 import scapy.all as scapy
 import random
+import platform
 
 import struct
 
 
 class Network:
+    
     def __init__(self):
         source_ip = None
         dest_ip = None
         self.dest_port = 8888
         self.src_port = 12345
-        self.interface = "en0"
+        self.interface = None 
         self.ip_filters = []
         self.sensors = {}
         self.actuators = {}
+        if platform.system() == "Windows":
+            print("windows detected! ")
+            self.interface = "Ethernet"  
+        elif platform.system() == "Darwin":  
+            print("mac detected! ")
+            self.interface  = "en0"
+        else:  
+            print("linux detected! ")
+            self.interface  = "eth0" 
 
     def set_source_ip(self, input):
         self.source_ip = input
