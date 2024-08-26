@@ -8,25 +8,25 @@ import struct
 
 
 class Network:
-    
+
     def __init__(self):
         source_ip = None
         dest_ip = None
         self.dest_port = 8888
         self.src_port = 12345
-        self.interface = None 
+        self.interface = None
         self.ip_filters = []
         self.sensors = {}
         self.actuators = {}
         if platform.system() == "Windows":
             print("windows detected! ")
-            self.interface = "Ethernet"  
-        elif platform.system() == "Darwin":  
+            self.interface = "Ethernet"
+        elif platform.system() == "Darwin":
             print("mac detected! ")
-            self.interface  = "en0"
-        else:  
+            self.interface = "en0"
+        else:
             print("linux detected! ")
-            self.interface  = "eth0" 
+            self.interface = "eth0"
 
     def set_source_ip(self, input):
         self.source_ip = input
@@ -60,7 +60,7 @@ class Network:
                     if len(data) != 2:
                         pass
                     else:
-               
+
                         # heartbeat
                         if data == bytes([int(100), 235]):
 
@@ -72,11 +72,10 @@ class Network:
                             self.actuators = {}
                         else:
                             print("data recieved, now parsing")
-                    
+
                             pin_num = data[0]
-                 
+
                             config = data[1]
-                         
 
                             is_an_actuator = config & 0b10000000 == 0b10000000
                             interface_type_number = config & 0b00111111
@@ -93,13 +92,12 @@ class Network:
                                 print(
                                     f"pin {pin_num} is an actuator with the state {actuator_state} with the interface of {interface_type_number}"
                                 )
-
+                                packet = bytearray(5)
                                 ack_pin = 100 + pin_num
-                                ack_packet = bytes([ack_pin, config])
-                                print(ack_pin)
-                                print(config)
-                                self.send_packet(ack_packet)
-                                print(ack_packet)
+                                packet[0] = int(ack_pin)
+                                packet[1:5] = struct.pack(">f", config)
+
+                                self.send_packet(packet)
 
                             else:
                                 print(
