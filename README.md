@@ -48,12 +48,11 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 1. Install libpcap 
 
  **For debian and ubuntu**
- ```
- $ sudo apt-get install libpcap-dev  
- ```
+     ```
+     $ sudo apt-get install libpcap-dev  
+    ```
  
-
- **For fedora**
+**For fedora**
      ```
      ```
 
