@@ -50,14 +50,16 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 1. Install libpcap 
 
  **For debian and ubuntu**
- ``` 
+ ``
     $ sudo apt-get install libpcap-dev  
- ```
+ ``
 
  **For fedora**
-  ```  
+
+  `` 
     $ yum install libpcap-devel
-  ```  
+  ``
+
 2. Install scapy via   `pip` - or `apt`
 
 
@@ -93,6 +95,7 @@ PORT: 5001 
 
 ### 1. Sensors 
 
+ ``
  ┌─────────────────────────────────────┐      
  │GUI                         Fake MOTE│      
  │                                     │      
@@ -105,20 +108,22 @@ PORT: 5001 
  │ │                               │   │      
  │ │                               │   │      
  └─────────────────────────────────────┘ 
- 
+ ``
 
  
 
  **Data**
+ ``
     ┌──────┬─────────┐  
     │ [0]  │   [1:4] │  
     │ pin #│   data  │  
     └──────┴─────────┘    
+ ``
                                               
 
 ### 2. Actuators   
 
-                                              
+   ``                                      
     ┌────────────────────────────────────────────┐
     │GUI                                Fake MOTE│
     │                                            │
@@ -131,21 +136,25 @@ PORT: 5001 
     │ │ ◄───────────────────────────────────── │ │
     │ │                                        │ │
     └────────────────────────────────────────────┘
-
+    ``
  *** ACK packet ***
+
+ ``
     ┌────────────┬─────────┐
     │    [0]     │  [1:4]  │
     │ pin # + 100│  config │
     └────────────┴─────────┘
+ ``
 
  **Sensor and Actuator Configuration** 
 > Bit packet sent by the GUI 
-
-┌──────────────────────────────────┐
-│[0000] │     [0000]     | [0000]  |
-│ pin # │ sensor/actuator|interface|
-│       | & act. state   |         |
-└──────────────────────────────────┘
+ ``
+    ┌──────────────────────────────────┐
+    │[0000] │     [0000]     | [0000]  |
+    │ pin # │ sensor/actuator|interface|
+    │       | & act. state   |         |
+    └──────────────────────────────────┘
+ ``
 
  1. The first bit in the second byteactuator/sensor indicator 
      - 1 - is an actuator 
@@ -160,7 +169,8 @@ PORT: 5001 
 
 
 
-[!NOTE] In order for the GUI to process any information sent from fake mote, it must be a byte array of **5 bytes** in the following order: 1. pin number 2. remaining 4 bytes of relevant information packaged in a struct in little endian ordering  
+ In order for the GUI to process any information sent from fake mote, it must be a byte array of **5 bytes** in the following order: 1. pin number 2. remaining 4 bytes of relevant information packaged in a struct in little endian ordering  \
+ 
 > Why little endian? Because that's how 1. GUI is able to parse the data 2. Real MOTE works like that 
 
 
