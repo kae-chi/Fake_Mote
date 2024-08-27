@@ -35,14 +35,13 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 ### Windows and Mac
 
 1. Install pip 
-https://pip.pypa.io/en/stable/installation/ 
+-  https://pip.pypa.io/en/stable/installation/ 
 
 2. Open terminal (mac) / powershell (windows) and enter the following: 
 
-``` 
-$ pip install scapy 
+``` $ pip install scapy ``` 
 
-``` 
+
 
 ### Linux 
 
@@ -50,19 +49,13 @@ $ pip install scapy 
 
  **For debian and ubuntu**
 
- ``` 
- $ sudo apt-get install libpcap-dev 
-
- ```
+ ``` $ sudo apt-get install libpcap-dev  ```
 
  **For fedora**
 
-    ```
-    $ yum install libpcap-devel
+ ```$ yum install libpcap-devel``` 
 
-    ``` 
-
-2. Install scapy via ``` pip``` or ```apt```  
+2. Install scapy via - pip - or - apt - 
 
 
 Please consult the following link (scapy documentation) for any additional information. 
@@ -95,7 +88,7 @@ PORT: 5001 
 
 
 
-1. Sensors 
+### 1. Sensors 
 
  ┌─────────────────────────────────────┐      
  │GUI                         Fake MOTE│      
@@ -113,7 +106,7 @@ PORT: 5001 
 
  
 
- ** Data ** 
+ **Data**
     ┌──────┬─────────┐  
     │ [0]  │   [1:4] │  
     │ pin #│   data  │  
@@ -136,36 +129,36 @@ PORT: 5001 
     │ │                                        │ │
     └────────────────────────────────────────────┘
 
-
-   ** ack packet ** 
+ *** ACK packet ***
     ┌────────────┬─────────┐
     │    [0]     │  [1:4]  │
     │ pin # + 100│  config │
     └────────────┴─────────┘
 
  **Sensor and Actuator Configuration** 
- > Bit packet sent by the GUI 
+> Bit packet sent by the GUI 
 
 ┌──────────────────────────────────┐
-│[0000]  │  [<font color = "red">0</font> <font color = "pink">0</font>00]         [0000]  
-│ pin # │ sensor/actuator  interface│
+│[0000] │     [0000]     | [0000]  |
+│ pin # │ sensor/actuator|interface|
+│       | & act. state   |         |
 └──────────────────────────────────┘
 
-<font color = "red"> actuator/sensor indicator 
-> 1 - is an actuator 
-> 0 - is a sensor
-</font> 
+ 1. The first bit in the second byteactuator/sensor indicator 
+     - 1 - is an actuator 
+     - 0 - is a sensor 
 
-<font color = "pink"> actuator state 
-> 1 - Actuator is on **TRUE** state
-> 0 - Actuator is on **FALSE** state
-</font>
 
+2. actuator state 
+ - 1 - Actuator is on **TRUE** state
+ - 0 - Actuator is on **FALSE** state
 
 
 
-[!NOTE] In order for the GUI to process any information sent from fake mote, it must be a byte array of 5 bytes in the following order: 1. pin number 2. remaining 4 bytes of relevant information packaged in a struct in little endian ordering  
-> Why little endian? I don't know that
+
+
+[!NOTE] In order for the GUI to process any information sent from fake mote, it must be a byte array of ***5 bytes*** in the following order: 1. pin number 2. remaining 4 bytes of relevant information packaged in a struct in little endian ordering  
+> Why little endian? Because that's how 1. GUI is able to parse the data 2. Real MOTE works like that 
 
 
 
