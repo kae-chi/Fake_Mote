@@ -39,9 +39,9 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 2. Open terminal (mac) / powershell (windows) and enter the following: 
 
-  `` 
+  ` 
     $ pip install scapy 
-    `` 
+` 
 
 
 
