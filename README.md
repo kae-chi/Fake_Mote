@@ -39,9 +39,9 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 2. Open terminal (mac) / powershell (windows) and enter the following: 
 
-  ` 
-    $ pip install scapy 
-` 
+  ```  
+   $ pip install scapy 
+  ```  
 
 
 
@@ -50,14 +50,15 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 1. Install libpcap 
 
  **For debian and ubuntu**
-
- ``` $ sudo apt-get install libpcap-dev  ```
+ ``` 
+    $ sudo apt-get install libpcap-dev  
+ ```
 
  **For fedora**
-
- ```$ yum install libpcap-devel``` 
-
-2. Install scapy via - pip - or - apt - 
+  ```  
+    $ yum install libpcap-devel
+  ```  
+2. Install scapy via   `pip` - or `apt`
 
 
 Please consult the following link (scapy documentation) for any additional information. 
@@ -159,7 +160,7 @@ PORT: 5001 
 
 
 
-[!NOTE] In order for the GUI to process any information sent from fake mote, it must be a byte array of ***5 bytes*** in the following order: 1. pin number 2. remaining 4 bytes of relevant information packaged in a struct in little endian ordering  
+[!NOTE] In order for the GUI to process any information sent from fake mote, it must be a byte array of **5 bytes** in the following order: 1. pin number 2. remaining 4 bytes of relevant information packaged in a struct in little endian ordering  
 > Why little endian? Because that's how 1. GUI is able to parse the data 2. Real MOTE works like that 
 
 
