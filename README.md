@@ -23,10 +23,10 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
  - Linux: https://docs.python.org/3/using/unix.html 
 
 2. ** Rocket GUI **
-    https://github.com/lukkn/rocket_gui/wiki    
+ -  https://github.com/lukkn/rocket_gui/wiki    
 
 3. ** Scapy library for Python ** 
-    https://scapy.net/ 
+ - https://scapy.net/ 
 
 
 ## How to install scapy 
@@ -39,7 +39,7 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 2. Open terminal (mac) / powershell (windows) and enter the following: 
 
-   $ pip install scapy 
+  $ pip install scapy 
 
 
 
@@ -55,7 +55,7 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 
 
-2. Install scapy via   `pip` - or `apt`
+2. Install scapy via   `pip` or `apt`
 
 
 Please consult the following link (scapy documentation) for any additional information. 
@@ -90,19 +90,20 @@ PORT: 5001 
 
 ### 1. Sensors 
 
- ```
- ┌─────────────────────────────────────┐      
- │GUI                         Fake MOTE│      
- │                                     │      
- │ │                               │   │      
- │ │           configuration       │   │      
- │ │ ────────────────────────────► │   │      
- │ │                               │   │      
- │ │              data             │   │      
- │ │ ◄──────────────────────────── │   │      
- │ │                               │   │      
- │ │                               │   │      
- └─────────────────────────────────────┘ 
+
+  ```
+    ┌─────────────────────────────────────┐      
+     │GUI                         Fake MOTE│      
+     │                                     │      
+     │ │                               │   │      
+     │ │           configuration       │   │      
+     │ │ ────────────────────────────► │   │      
+     │ │                               │   │      
+     │ │              data             │   │      
+     │ │ ◄──────────────────────────── │   │      
+     │ │                               │   │      
+     │ │                               │   │      
+     └─────────────────────────────────────┘ 
  ```
 
  
@@ -134,22 +135,22 @@ PORT: 5001 
     ``
  *** ACK packet ***
 
- ``
+ 
     ┌────────────┬─────────┐
     │    [0]     │  [1:4]  │
     │ pin # + 100│  config │
     └────────────┴─────────┘
- ``
+
 
  **Sensor and Actuator Configuration** 
 > Bit packet sent by the GUI 
- ``
+ 
     ┌──────────────────────────────────┐
     │[0000] │     [0000]     | [0000]  |
     │ pin # │ sensor/actuator|interface|
     │       | & act. state   |         |
     └──────────────────────────────────┘
- ``
+
 
  1. The first bit in the second byteactuator/sensor indicator 
      - 1 - is an actuator 
