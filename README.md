@@ -18,9 +18,9 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 ## Dependencies: 
 
 1. **Python 3.12 + ** 
-    Mac: https://www.python.org/downloads/macos/ 
-    Windows: https://www.python.org/getit/windows/ 
-    Linux: https://docs.python.org/3/using/unix.html 
+ - Mac: https://www.python.org/downloads/macos/ 
+ - Windows: https://www.python.org/getit/windows/ 
+ - Linux: https://docs.python.org/3/using/unix.html 
 
 2. ** Rocket GUI **
     https://github.com/lukkn/rocket_gui/wiki    
