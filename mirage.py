@@ -3,21 +3,25 @@ import threading
 import scapy.all as scapy
 import random
 import platform
-
+import csv
 import struct
+import sys
+
+from os import path
 
 
-class Network:
+class mote:
 
-    def __init__(self):
-        source_ip = None
-        dest_ip = None
+    def __init__(self, mote_num):
+        self.source_ip = "192.168.1.10" + f"{mote_num}"
+        self.dest_ip = None
         self.dest_port = 8888
         self.src_port = 12345
         self.interface = None
         self.ip_filters = []
         self.sensors = {}
         self.actuators = {}
+
         if platform.system() == "Windows":
             print("windows detected! ")
             self.interface = "Ethernet"
@@ -27,9 +31,6 @@ class Network:
         else:
             print("linux detected! ")
             self.interface = "eth0"
-
-    def set_source_ip(self, input):
-        self.source_ip = input
 
     def set_dest_ip(self, input):
         self.dest_ip = input
@@ -46,8 +47,10 @@ class Network:
                 self.ip_filters.append(e)
 
     def packet_handler(self, packet):
+        # print(packet)
 
         if scapy.IP in packet:
+            # print("nice")
             src_ip = packet[scapy.IP].src
             dst_ip = packet[scapy.IP].dst
             if (
@@ -55,6 +58,7 @@ class Network:
                 or src_ip in self.ip_filters
                 or dst_ip in self.ip_filters
             ):
+                # print("hi!")
                 if scapy.Raw in packet:
                     data = packet[scapy.Raw].load
                     if len(data) != 2:
@@ -135,24 +139,46 @@ class Network:
             pass
 
 
-def send_heartbeat(network, message):
+def send_heartbeat(mote, message):
     while True:
-        network.send_packet(message)
+        mote.send_packet(message)
         time.sleep(1)
+
+
+def spawn_mote_threads(config_name):
+    mote_nums = []
+    try:
+        with open(
+            path.join("configs", f"{config_name}.csv"), mode="r", newline=""
+        ) as file:
+            csv_reader = csv.reader(file)
+            for row in csv_reader:
+                if row and row[0] == "Mote id": 
+                    continue
+                if row and row[0] not in mote_nums:
+                    mote_nums.append(row[0])
+    except:
+        print("no offset file found")
+
+
+    for n in mote_nums:
+        mote_n = mote(n)
+        print(mote_n.source_ip)
+        mote_n.set_dest_ip("127.0.0.1")
+        mote_n.add_ip_filters([mote_n.source_ip])
+
+        thread1 = threading.Thread(target=send_heartbeat, args=(mote_n, bytes([0])))
+        thread2 = threading.Thread(target=mote_n.start_sniffing)
+        thread3 = threading.Thread(target=mote_n.fuzzing)
+
+        thread1.start()
+        thread2.start()
+        # thread3.start()
 
 
 # Main function
 if __name__ == "__main__":
+    config_file = sys.argv[1]
+    spawn_mote_threads(config_file)
+    
 
-    fakemote1 = Network()
-    fakemote1.set_source_ip("192.168.1.101")
-    fakemote1.set_dest_ip("127.0.0.1")
-    fakemote1.add_ip_filters(["192.168.1.101"])
-
-    thread1 = threading.Thread(target=send_heartbeat, args=(fakemote1, bytes([0])))
-    thread2 = threading.Thread(target=fakemote1.start_sniffing)
-    thread3 = threading.Thread(target=fakemote1.fuzzing)
-
-    thread1.start()
-    thread2.start()
-    thread3.start()
