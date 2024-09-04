@@ -39,7 +39,7 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 2. Open terminal (mac) / powershell (windows) and enter the following: 
  ```
-  $ pip install scapy 
+  % pip install scapy 
  ```
 
 
@@ -50,14 +50,8 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
  **For debian and ubuntu**
 ```
-$ sudo apt-get install libpcap-dev  
+% sudo apt-get install libpcap-dev  
  ```
- 
-**For fedora**
-```
-    place holder
-```
-
 
 2. Install scapy via   `pip` or `apt`
 
@@ -70,25 +64,30 @@ https://scapy.readthedocs.io/en/latest/installation.html 
 1. Open terminal (mac) or git bash (windows) and enter the following
 
 ```
-$ git clone https://phab.burpg.space/diffusion/80/webgui.git
+% git clone https://phab.burpg.space/diffusion/80/webgui.git
 ```
 2. Go into webgui directory and then FlaskGUI directory 
 ```
-cd webgui 
-cd FlaskGUI
+% cd  ../webgui 
+% cd FlaskGUI
 ```
 3. Then enter the following to run the app
 ```
-python3 app.py 
+% python3 app.py 
 ```
 
 At this point, the GUI webpage should open in your browser 
 
-## How To Run Fake Mote 
+## How To Run Fake Mote (command line)
 1. Open terminal (mac) or git bash (windows) and enter the following: 
+
 ```
-python3 fakemote.py /path/to/config_file
+%cd ../fakemote
+% python3 fakemote.py <config file name>
 ```
+Fake MOTE should be running at this point in the corresponding terminal 
+
+> Kae is developing a widget with the QT framework, will continue to update documentation (9/2)
 ## Networking Things 
 
 ### Relevant IP addresses  
@@ -184,14 +183,14 @@ python3 fakemote.py /path/to/config_file
 ```
 ### Sensory/Actuator Byte
 <pre>
-[<span style = "color:#87CEEB">0</span><span style = "color:pink">0</span>00]
+0000
 </pre>
 
- 1. <span style = "color:#87CEEB">The first bit is the **actuator/sensor indicator** </span>
+ 1. The first bit is the **actuator/sensor indicator** 
      - 1 - is an **actuator**
      - 0 - is a **sensor**
 
-2. <span style = "color:pink">The second bit is the **actuator state**</span> (only applicable to an actuator configuration)
+2. The second bit is the **actuator state** (only applicable to an actuator configuration)
       - 1 - Actuator is on **TRUE** state
       - 0 - Actuator is on **FALSE** state
 
