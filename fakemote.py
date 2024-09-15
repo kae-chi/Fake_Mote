@@ -133,7 +133,7 @@ class mote:
                             self.sensors = {}
                             self.actuators = {}
                         else:
-                            print("Data recieved, now parsing")
+                            print("Data recieved, now parsing.")
 
                             pin_num = data[0]
 
@@ -177,9 +177,7 @@ class mote:
                                     f"MOTE {self.source_ip[-1]}, pin {pin_num}  is a sensor with the interface {get_interface_name(interface_type_number)}"
                                 )
 
-                                
                                 self.sensors[pin_num] = 0
-                                print(self.sensors)
                                 with open(self.csv_path, "a", newline="") as file:
                                     writer = csv.writer(file)
                                     writer.writerow(
@@ -193,8 +191,6 @@ class mote:
 
     def start_sniffing(self):
         scapy.sniff(iface=self.interface, prn=self.packet_handler)
-
-        
 
     def fuzzing(self):
         while True:
@@ -217,12 +213,10 @@ class mote:
                 time.sleep(0.01)
 
     def send_specific_data(self):
-         #remove that pin to avoid any conflict of packets
-         print("Flagged!! ")
-         
-         while True:
+    
+        while True:
             if len(self.flagged_sensors) > 0:
-        
+
                 the_sensors = list(self.flagged_sensors)
                 packet = bytearray(5 * len(the_sensors))
 
@@ -240,8 +234,6 @@ class mote:
                 self.send_packet(packet)
                 time.sleep(0.01)
 
-               
-
 
 def send_heartbeat(mote, message):
     while True:
@@ -249,21 +241,22 @@ def send_heartbeat(mote, message):
         time.sleep(1)
 
 
-def flag(mote_list, mote_num, pin, data ):
+def flag(sensor_path, mote_list, mote_num, pin, data):
     flagged_mote = None
-    for n in mote_list: 
-         if str(mote_num) == n.source_ip[-1]: 
-            
+    for n in mote_list:
+        if str(mote_num) == n.source_ip[-1]:
+
             flagged_mote = n
-        
-    if flagged_mote != None: 
+
+    if flagged_mote != None:
+        modify_csv_for_flag(sensor_path, mote_num, pin, data)
+        # remove that pin to avoid any conflict of packets
         flagged_mote.sensors.pop(pin)
         flagged_mote.flagged_sensors[pin] = data
-    else: 
+    else:
         print("Error!")
-        return 
+        return
 
-    
 
 def spawn_mote_threads(path, mote_path, csv_path, actuator_path):
     mote_nums = []
@@ -292,58 +285,72 @@ def spawn_mote_threads(path, mote_path, csv_path, actuator_path):
 
         thread1 = threading.Thread(target=send_heartbeat, args=(mote_n, bytes([0])))
         thread2 = threading.Thread(target=mote_n.start_sniffing)
-        thread3= threading.Thread(target=mote_n.fuzzing)
+        thread3 = threading.Thread(target=mote_n.fuzzing)
 
         thread1.start()
         thread2.start()
         thread3.start()
-
+ 
         motes.append(mote_n)
 
     return motes
 
 
 def spawn_motes(config_path, mote_path, csv_path, actuator_path):
-    print("Generating appropriate objects")
+    print("Generating appropriate objects.")
     try:
 
         the_motes = spawn_mote_threads(config_path, mote_path, csv_path, actuator_path)
         return the_motes
     except:
-        print("An error occured while generating motes")
+        print("An error occured while generating motes.")
         return False
-    
-def initiate_flagging(mote_obj): 
-    mote_obj.send_specific_data()
-    
 
-def initial_flag(mote_list, mote_num, pin, data): 
+
+def initiate_flagging(mote_obj):
+    mote_obj.send_specific_data()
+
+
+def initial_flag(sensor_path, mote_list, mote_num, pin, data):
     flagged_mote = None
-    for n in mote_list: 
-         if str(mote_num) == n.source_ip[-1]: 
+    for n in mote_list:
+        if str(mote_num) == n.source_ip[-1]:
             flagged_mote = n
             break
-        
-        
-    if flagged_mote != None: 
-        if pin not in flagged_mote.sensors: 
-            print("this pin doesn't exist!")
+
+    if flagged_mote != None:
+        if pin not in flagged_mote.sensors:
+            print("Please double check if the mote and pin pair exists.")
             return False
-        else: 
+        else:
+            modify_csv_for_flag(sensor_path, mote_num, pin, data)
+            # remove that pin to avoid any conflict of packets
             flagged_mote.flagged_sensors[pin] = data
             flagged_mote.sensors.pop(pin)
-            print(flagged_mote.sensors)
+
             thread4 = threading.Thread(target=initiate_flagging, args=(flagged_mote,))
             thread4.start()
             return True
 
-    else: 
+    else:
         print("Error!")
-        return 
+        return
 
 
+def modify_csv_for_flag(sensor_path, mote_num, pin_num, value):
+    # ["mote", "pin number", "interface", "flag","flag value"]
+    sensors = []
 
+    with open(sensor_path, "r") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if row[0] == str(mote_num) and row[1] == str(pin_num):
+                row = [row[0], row[1], row[2], True, value]
+            sensors.append(row)
 
+    with open(sensor_path, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerows(sensors)
 
 
 def setup():
@@ -354,7 +361,7 @@ def setup():
     # create a folder if it does not exists
     print(os.path.exists(logs_folder))
     if not os.path.exists(logs_folder):
-        print("Initialzing logs directory")
+        print("Initialzing logs directory.")
         os.mkdir(logs_folder)
 
     # Create unique folder for persistence
@@ -362,7 +369,7 @@ def setup():
     try:
         os.mkdir(directory_name)
     except OSError as e:
-        print(f"Failed to create directory: {e}")
+        print(f"Failed to create directory: {e}.")
         return
 
     # Create mote CSV file
@@ -375,7 +382,7 @@ def setup():
     csv_path = os.path.join(directory_name, "sensors.csv")
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["mote", "pin number", "interface", "flag"])
+        writer.writerow(["mote", "pin number", "interface", "flag", "flag value"])
 
     # Create actuators CSV file
 
@@ -388,11 +395,7 @@ def setup():
     return mote_path, csv_path, actuator_path
 
 
-
-
-
-def main(): 
-      
+def main():
 
     mote_path = None
     csv_path = None
@@ -428,8 +431,6 @@ def main():
     fs_parser.add_argument("pin_number", type=int)
     fs_parser.add_argument("data_point", type=int)
 
-    
-
     # fa_parser = subparsers.add_parser('fa', help="Fuzz data on all sensor pins" )
 
     while True:
@@ -437,30 +438,35 @@ def main():
             user_input = input(">> ")
             args = parser.parse_args(user_input.split())
             if args.command == "e":
-                print("Exiting out of fakemote")
+                print("Exiting out of fakemote.")
                 sys.exit()
             elif args.command == "s":
                 mote_path, csv_path, actuator_path = setup()
                 mote_list = spawn_motes(
                     args.configuration, mote_path, csv_path, actuator_path
                 )
-                print(mote_list)
             elif args.command == "fs":
                 print(
                     f"Flagging pin {args.pin_number} on Mote {args.mote_number} and inputting the single value {args.data_point}"
                 )
-    
+
                 if args.data_point > (2**32 - 1):
                     print("Value is too big!")
-                elif not motes_flagged: 
-                    print("No motes flagged: calling initial response")
-               
-                  
-                    motes_flagged = initial_flag(mote_list, args.mote_number, args.pin_number, args.data_point)
+                elif not motes_flagged:
+                    print("No motes flagged: calling initial flagging protocol.")
+
+                    motes_flagged = initial_flag(
+                        csv_path,
+                        mote_list,
+                        args.mote_number,
+                        args.pin_number,
+                        args.data_point,
+                    )
 
                 else:
 
                     flag(
+                        csv_path,
                         mote_list,
                         args.mote_number,
                         args.pin_number,
@@ -470,9 +476,7 @@ def main():
                 print("Please use the command: s path/to/config_file")
 
         except Exception as e:
-            print("error!")
-
-
+            print(f"Error:{e}")
 
 
 # Main function
