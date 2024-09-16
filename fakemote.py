@@ -66,9 +66,39 @@ def get_interface_name(interface_number):
     return None
 
 
+def sensor_human_name( n, pin_num): 
+    mote_num = n.source_ip[-1]
+    try: 
+        with open(n.config_path, "r") as f: 
+            reader = csv.reader(f)
+            # ["mote", "human name",  "pin number", "interface", "flag","flag value"]
+            for row in reader: 
+                if str(mote_num) == row[0] and str(pin_num) == row[4] and row[1] == "sensor": 
+                    #return the interface of the human name 
+                    #REMUS NITPICKED AHHHHHHH
+                    return row[3]
+    except: 
+        print("Please make sure the mote/pin number combination is a SENSOR")
+            
+def actuator_human_name(n, pin_num):
+    mote_num = n.source_ip[-1]
+
+    try: 
+        with open(n.config_path, "r") as f: 
+            reader = csv.reader(f)
+            # ["mote", "human name",  "pin number", "interface", "flag","flag value"]
+            for row in reader: 
+                if str(mote_num) == row[0] and str(pin_num) == row[4] and row[1] == "actuator": 
+                    #return the interface of the human name 
+                    #Remus nitpick zzz 
+                    return row[3]
+    except: 
+        print("Please make sure the mote/pin number combination is an ACUATOR")
+
+
 class mote:
 
-    def __init__(self, mote_num, mote_path, csv_path, actuator_path):
+    def __init__(self, mote_num, mote_path, csv_path, actuator_path, config_path):
         self.source_ip = "192.168.1.10" + f"{mote_num}"
         self.dest_ip = None
         self.dest_port = 8888
@@ -77,6 +107,7 @@ class mote:
         self.ip_filters = []
         self.sensors = {}
         self.actuators = {}
+        self.config_path = config_path
         self.csv_path = csv_path
         self.mote_path = mote_path
         self.actuator_path = actuator_path
@@ -151,15 +182,18 @@ class mote:
                                     actuator_state,
                                     interface_type_number,
                                 ]
+                                human_name = actuator_human_name(self, pin_num)
                                 print(
-                                    f"MOTE {self.source_ip[-1]}, pin {pin_num} is an actuator with the state {actuator_state} with the interface of {get_interface_name(interface_type_number)}"
+                                    f"MOTE {self.source_ip[-1]}, pin {pin_num} is the actuator {human_name} with the state {actuator_state} with the interface of {get_interface_name(interface_type_number)}"
                                 )
+                        
 
                                 with open(self.actuator_path, "a", newline="") as file:
                                     writer = csv.writer(file)
                                     writer.writerow(
                                         [
                                             self.source_ip[-1],
+                                            human_name,
                                             pin_num,
                                             get_interface_name(pin_num),
                                             actuator_state,
@@ -173,8 +207,9 @@ class mote:
                                 self.send_packet(packet)
 
                             else:
+                                human_name = sensor_human_name(self, pin_num)
                                 print(
-                                    f"MOTE {self.source_ip[-1]}, pin {pin_num}  is a sensor with the interface {get_interface_name(interface_type_number)}"
+                                    f"MOTE {self.source_ip[-1]}, pin {pin_num} is the {human_name} sensor with the interface {get_interface_name(interface_type_number)}"
                                 )
 
                                 self.sensors[pin_num] = 0
@@ -183,6 +218,7 @@ class mote:
                                     writer.writerow(
                                         [
                                             self.source_ip[-1],
+                                            human_name,
                                             pin_num,
                                             get_interface_name(pin_num),
                                             False,
@@ -251,10 +287,14 @@ def flag(sensor_path, mote_list, mote_num, pin, data):
     if flagged_mote != None:
         modify_csv_for_flag(sensor_path, mote_num, pin, data)
         # remove that pin to avoid any conflict of packets
-        flagged_mote.sensors.pop(pin)
-        flagged_mote.flagged_sensors[pin] = data
+        if pin not in flagged_mote.sensors:
+            flagged_mote.sensors.pop(pin)
+            flagged_mote.flagged_sensors[pin] = data
+        else: 
+            print(f"Pin {pin} has been flagged, changing flagged value to {data}")
+            flagged_mote.flagged_sensors[pin] = data
     else:
-        print("Error!")
+        print("Double check that mote pin pair exist.")
         return
 
 
@@ -275,7 +315,7 @@ def spawn_mote_threads(path, mote_path, csv_path, actuator_path):
     motes = []
     for n in mote_nums:
 
-        mote_n = mote(n, mote_path, csv_path, actuator_path)
+        mote_n = mote(n, mote_path, csv_path, actuator_path, path)
         print(f"Mote {mote_n.source_ip[-1]} generated! {mote_n.source_ip}")
         with open(mote_path, "a", newline="") as file:
             writer = csv.writer(file)
@@ -313,6 +353,7 @@ def initiate_flagging(mote_obj):
 
 def initial_flag(sensor_path, mote_list, mote_num, pin, data):
     flagged_mote = None
+    print(initial_flag)
     for n in mote_list:
         if str(mote_num) == n.source_ip[-1]:
             flagged_mote = n
@@ -334,11 +375,11 @@ def initial_flag(sensor_path, mote_list, mote_num, pin, data):
 
     else:
         print("Error!")
-        return
+        return False
 
 
 def modify_csv_for_flag(sensor_path, mote_num, pin_num, value):
-    # ["mote", "pin number", "interface", "flag","flag value"]
+    # ["mote", "human name",  "pin number", "interface", "flag","flag value"]
     sensors = []
 
     with open(sensor_path, "r") as file:
@@ -382,21 +423,23 @@ def setup():
     csv_path = os.path.join(directory_name, "sensors.csv")
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["mote", "pin number", "interface", "flag", "flag value"])
+        writer.writerow(["mote", 'human name', "pin number", "interface", "flag", "flag value"])
 
     # Create actuators CSV file
 
     actuator_path = os.path.join(directory_name, "actuator.csv")
     with open(actuator_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["mote", "pin number", "interface", "state"])
-        print("Intialized!")
+        writer.writerow(["mote", "human name", "pin number", "interface", "state"])
+    
+    print("Intialized!")
 
     return mote_path, csv_path, actuator_path
 
 
 def main():
 
+    
     mote_path = None
     csv_path = None
     actuator_path = None
