@@ -460,6 +460,8 @@ def main():
 
     # Print operating system
 
+    print("Welcome to fakemote. Use -h to see what commands you can use. ")
+
     if platform.system() == "Windows":
         print("Windows detected! ")
     elif platform.system() == "Darwin":
@@ -502,7 +504,6 @@ def main():
                 )
                 for i in mote_list:
                     motes_flagged[i.source_ip[-1]] = False
-                    print(motes_flagged)
             elif args.command == "fs":
                 print(
                     f"Flagging pin {args.pin_number} on Mote {args.mote_number} and inputting the single value {args.data_point}"
@@ -512,7 +513,7 @@ def main():
                     print("Value is too big!")
                 elif not motes_flagged[str(args.mote_number)]:
                     print("No pins in mote {args.mote_number}flagged: calling initial flagging protocol.")
-                    print(motes_flagged)
+                    
                     motes_flagged[str(args.mote_number)] = initial_flag(
                         csv_path,
                         mote_list,
@@ -522,7 +523,7 @@ def main():
                     )
 
                 else:
-                    print(motes_flagged)
+
                     flag(
                         csv_path,
                         mote_list,
@@ -540,4 +541,4 @@ def main():
 # Main function
 if __name__ == "__main__":
     main()
-    # accessing all variables
+

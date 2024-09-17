@@ -92,14 +92,26 @@ Fake MOTE should be running at this point in the corresponding terminal
 ## Important Command Lines
 
 > Fake MOTE must be running at this point for any of the following command lines to work
-1. Spawning fake mote 
+
+1. Spawning (fake) motes 
 ```
-% -s <path to config file>
+% -s <path/to/config/file>
 ```
+Spawns and sets up motes based on configuration file. 
+
 2. Flagging pins 
 ```
-% -f <pin number>, <path to config file>
-```
+% -fs  <mote_number>  <pin number> <data point>
+
+Flags a single pin based off of data points
+
+
+## CSV Logging 
+
+There exists a csv log for each component of the mote they are located in logs/, in the folder of when you called the -s command. 
+To find the appropriate one, the file name is function.csv. For sensors, it would be sensors.csv. 
+
+
 
 
 
