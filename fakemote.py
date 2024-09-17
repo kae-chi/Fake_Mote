@@ -66,33 +66,42 @@ def get_interface_name(interface_number):
     return None
 
 
-def sensor_human_name( n, pin_num): 
+def sensor_human_name(n, pin_num):
     mote_num = n.source_ip[-1]
-    try: 
-        with open(n.config_path, "r") as f: 
+    try:
+        with open(n.config_path, "r") as f:
             reader = csv.reader(f)
             # ["mote", "human name",  "pin number", "interface", "flag","flag value"]
-            for row in reader: 
-                if str(mote_num) == row[0] and str(pin_num) == row[4] and row[1] == "sensor": 
-                    #return the interface of the human name 
-                    #REMUS NITPICKED AHHHHHHH
+            for row in reader:
+                if (
+                    str(mote_num) == row[0]
+                    and str(pin_num) == row[4]
+                    and row[1] == "sensor"
+                ):
+                    # return the interface of the human name
+                    # REMUS NITPICKED AHHHHHHH
                     return row[3]
-    except: 
+    except:
         print("Please make sure the mote/pin number combination is a SENSOR")
-            
+
+
 def actuator_human_name(n, pin_num):
     mote_num = n.source_ip[-1]
 
-    try: 
-        with open(n.config_path, "r") as f: 
+    try:
+        with open(n.config_path, "r") as f:
             reader = csv.reader(f)
             # ["mote", "human name",  "pin number", "interface", "flag","flag value"]
-            for row in reader: 
-                if str(mote_num) == row[0] and str(pin_num) == row[4] and row[1] == "actuator": 
-                    #return the interface of the human name 
-                    #Remus nitpick zzz 
+            for row in reader:
+                if (
+                    str(mote_num) == row[0]
+                    and str(pin_num) == row[4]
+                    and row[1] == "actuator"
+                ):
+                    # return the interface of the human name
+                    # Remus nitpick zzz
                     return row[3]
-    except: 
+    except:
         print("Please make sure the mote/pin number combination is an ACUATOR")
 
 
@@ -172,7 +181,7 @@ class mote:
 
                             is_an_actuator = config & 0b10000000 == 0b10000000
                             interface_type_number = config & 0b00111111
-
+                            #actuator condition
                             if is_an_actuator:
 
                                 actuator_state = config & 0b01000000 == 0b01000000
@@ -186,7 +195,6 @@ class mote:
                                 print(
                                     f"MOTE {self.source_ip[-1]}, pin {pin_num} is the actuator {human_name} with the state {actuator_state} with the interface of {get_interface_name(interface_type_number)}"
                                 )
-                        
 
                                 with open(self.actuator_path, "a", newline="") as file:
                                     writer = csv.writer(file)
@@ -207,11 +215,12 @@ class mote:
                                 self.send_packet(packet)
 
                             else:
+                                #sensor condition
                                 human_name = sensor_human_name(self, pin_num)
                                 print(
                                     f"MOTE {self.source_ip[-1]}, pin {pin_num} is the {human_name} sensor with the interface {get_interface_name(interface_type_number)}"
                                 )
-
+                                #add to dictionary
                                 self.sensors[pin_num] = 0
                                 with open(self.csv_path, "a", newline="") as file:
                                     writer = csv.writer(file)
@@ -224,6 +233,7 @@ class mote:
                                             False,
                                         ]
                                     )
+                                    
 
     def start_sniffing(self):
         scapy.sniff(iface=self.interface, prn=self.packet_handler)
@@ -249,7 +259,7 @@ class mote:
                 time.sleep(0.01)
 
     def send_specific_data(self):
-    
+
         while True:
             if len(self.flagged_sensors) > 0:
 
@@ -287,11 +297,12 @@ def flag(sensor_path, mote_list, mote_num, pin, data):
     if flagged_mote != None:
         modify_csv_for_flag(sensor_path, mote_num, pin, data)
         # remove that pin to avoid any conflict of packets
-        if pin not in flagged_mote.sensors:
+        if pin in flagged_mote.sensors:
+            print(f"Flagging new pin {pin} with flagged value {data}")
             flagged_mote.sensors.pop(pin)
             flagged_mote.flagged_sensors[pin] = data
-        else: 
-            print(f"Pin {pin} has been flagged, changing flagged value to {data}")
+        else:
+            print(f"Pin {pin} is already flagged, changing flagged value to {data}")
             flagged_mote.flagged_sensors[pin] = data
     else:
         print("Double check that mote pin pair exist.")
@@ -330,7 +341,7 @@ def spawn_mote_threads(path, mote_path, csv_path, actuator_path):
         thread1.start()
         thread2.start()
         thread3.start()
- 
+
         motes.append(mote_n)
 
     return motes
@@ -353,7 +364,6 @@ def initiate_flagging(mote_obj):
 
 def initial_flag(sensor_path, mote_list, mote_num, pin, data):
     flagged_mote = None
-    print(initial_flag)
     for n in mote_list:
         if str(mote_num) == n.source_ip[-1]:
             flagged_mote = n
@@ -385,9 +395,11 @@ def modify_csv_for_flag(sensor_path, mote_num, pin_num, value):
     with open(sensor_path, "r") as file:
         reader = csv.reader(file)
         for row in reader:
-            if row[0] == str(mote_num) and row[1] == str(pin_num):
-                row = [row[0], row[1], row[2], True, value]
+            if row[0] == str(mote_num) and row[2] == str(pin_num):
+                row = [row[0], row[1], row[2], row[3], True, value]
             sensors.append(row)
+
+    
 
     with open(sensor_path, "w", newline="") as file:
         writer = csv.writer(file)
@@ -400,7 +412,6 @@ def setup():
 
     formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     # create a folder if it does not exists
-    print(os.path.exists(logs_folder))
     if not os.path.exists(logs_folder):
         print("Initialzing logs directory.")
         os.mkdir(logs_folder)
@@ -417,13 +428,15 @@ def setup():
     mote_path = os.path.join(directory_name, "mote_config.csv")
     with open(mote_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["mote number", "IP"])
+        writer.writerow(["mote number", "IP", "At least one senosr flagged"])
 
     # Create sensors CSV file
     csv_path = os.path.join(directory_name, "sensors.csv")
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["mote", 'human name', "pin number", "interface", "flag", "flag value"])
+        writer.writerow(
+            ["mote", "human name", "pin number", "interface", "flag", "flag value"]
+        )
 
     # Create actuators CSV file
 
@@ -431,7 +444,7 @@ def setup():
     with open(actuator_path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["mote", "human name", "pin number", "interface", "state"])
-    
+
     print("Intialized!")
 
     return mote_path, csv_path, actuator_path
@@ -439,12 +452,11 @@ def setup():
 
 def main():
 
-    
     mote_path = None
     csv_path = None
     actuator_path = None
     mote_list = None
-    motes_flagged = False
+    motes_flagged = {}
 
     # Print operating system
 
@@ -488,6 +500,9 @@ def main():
                 mote_list = spawn_motes(
                     args.configuration, mote_path, csv_path, actuator_path
                 )
+                for i in mote_list:
+                    motes_flagged[i.source_ip[-1]] = False
+                    print(motes_flagged)
             elif args.command == "fs":
                 print(
                     f"Flagging pin {args.pin_number} on Mote {args.mote_number} and inputting the single value {args.data_point}"
@@ -495,10 +510,10 @@ def main():
 
                 if args.data_point > (2**32 - 1):
                     print("Value is too big!")
-                elif not motes_flagged:
-                    print("No motes flagged: calling initial flagging protocol.")
-
-                    motes_flagged = initial_flag(
+                elif not motes_flagged[str(args.mote_number)]:
+                    print("No pins in mote {args.mote_number}flagged: calling initial flagging protocol.")
+                    print(motes_flagged)
+                    motes_flagged[str(args.mote_number)] = initial_flag(
                         csv_path,
                         mote_list,
                         args.mote_number,
@@ -507,7 +522,7 @@ def main():
                     )
 
                 else:
-
+                    print(motes_flagged)
                     flag(
                         csv_path,
                         mote_list,
@@ -519,7 +534,7 @@ def main():
                 print("Please use the command: s path/to/config_file")
 
         except Exception as e:
-            print(f"Error:{e}")
+            print(f"{e}")
 
 
 # Main function
