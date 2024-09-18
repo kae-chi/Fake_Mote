@@ -300,10 +300,10 @@ def flag(sensor_path, mote_list, mote_num, pin, data):
         if pin in flagged_mote.sensors:
             print(f"Flagging new pin {pin} with flagged value {data}")
             flagged_mote.sensors.pop(pin)
-            flagged_mote.flagged_sensors[pin] = data
+            flagged_mote.flagged_sensors[pin] = float(data)
         else:
             print(f"Pin {pin} is already flagged, changing flagged value to {data}")
-            flagged_mote.flagged_sensors[pin] = data
+            flagged_mote.flagged_sensors[pin] = float(data)
     else:
         print("Double check that mote pin pair exist.")
         return
@@ -334,9 +334,9 @@ def spawn_mote_threads(path, mote_path, csv_path, actuator_path):
         mote_n.set_dest_ip("127.0.0.1")
         mote_n.add_ip_filters([mote_n.source_ip])
 
-        thread1 = threading.Thread(target=send_heartbeat, args=(mote_n, bytes([0])))
-        thread2 = threading.Thread(target=mote_n.start_sniffing)
-        thread3 = threading.Thread(target=mote_n.fuzzing)
+        thread1 = threading.Thread(target=send_heartbeat, args=(mote_n, bytes([0])), daemon=True)
+        thread2 = threading.Thread(target=mote_n.start_sniffing, daemon=True)
+        thread3 = threading.Thread(target=mote_n.fuzzing, daemon=True)
 
         thread1.start()
         thread2.start()
@@ -376,10 +376,10 @@ def initial_flag(sensor_path, mote_list, mote_num, pin, data):
         else:
             modify_csv_for_flag(sensor_path, mote_num, pin, data)
             # remove that pin to avoid any conflict of packets
-            flagged_mote.flagged_sensors[pin] = data
+            flagged_mote.flagged_sensors[pin] = float(data)
             flagged_mote.sensors.pop(pin)
 
-            thread4 = threading.Thread(target=initiate_flagging, args=(flagged_mote,))
+            thread4 = threading.Thread(target=initiate_flagging, args=(flagged_mote,), daemon=True)
             thread4.start()
             return True
 
@@ -450,8 +450,20 @@ def setup():
     return mote_path, csv_path, actuator_path
 
 
-def main():
+import time
+import threading
+import scapy.all as scapy
+import random
+import platform
+import csv
+import struct
+import sys
+import argparse
+import os
 
+
+
+def main():
     mote_path = None
     csv_path = None
     actuator_path = None
@@ -459,83 +471,88 @@ def main():
     motes_flagged = {}
 
     # Print operating system
-
-    print("Welcome to fakemote. Use -h to see what commands you can use. ")
+    print("Welcome to fakemote. Use -h to see what commands you can use.")
 
     if platform.system() == "Windows":
-        print("Windows detected! ")
+        print("Windows detected!")
     elif platform.system() == "Darwin":
-        print("Mac detected! ")
+        print("Mac detected!")
     else:
-        print("Linux detected! ")
+        print("Linux detected!")
+
 
     parser = argparse.ArgumentParser(description="Welcome to fakemote.")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    # spawning fake motes
-    e_parser = subparsers.add_parser("e", help="Exit out of the program")
-    s_parser = subparsers.add_parser(
-        "s", help="Spawn motes based on CSV configuration file"
-    )
-    s_parser.add_argument(
-        "configuration",
+    parser.add_argument(
+        "configuration", 
         type=str,
+        help="Path to the configuration CSV file."
     )
-    # flagging sensors from single data point
-    fs_parser = subparsers.add_parser(
-        "fs", help="Flag motes based off of their pins with a single data point"
-    )
-    fs_parser.add_argument("mote_number", type=int)
-    fs_parser.add_argument("pin_number", type=int)
-    fs_parser.add_argument("data_point", type=int)
+    args = parser.parse_args()
 
-    # fa_parser = subparsers.add_parser('fa', help="Fuzz data on all sensor pins" )
+    mote_path, csv_path, actuator_path = setup()
+    mote_list = spawn_motes(args.configuration, mote_path, csv_path, actuator_path)
 
+    for i in mote_list:
+        motes_flagged[i.source_ip[-1]] = False
+
+    print("All motes generated! Enter commands to interact with the motes.")
+
+  
     while True:
         try:
-            user_input = input(">> ")
-            args = parser.parse_args(user_input.split())
-            if args.command == "e":
+            user_input = input(">> ").strip().split()
+            if not user_input:
+                continue
+
+            command = user_input[0].lower()
+
+            if command == "e":
                 print("Exiting out of fakemote.")
                 sys.exit()
-            elif args.command == "s":
-                mote_path, csv_path, actuator_path = setup()
-                mote_list = spawn_motes(
-                    args.configuration, mote_path, csv_path, actuator_path
-                )
-                for i in mote_list:
-                    motes_flagged[i.source_ip[-1]] = False
-            elif args.command == "fs":
+            elif command == "fs":
+                if len(user_input) < 4:
+                    print("Usage: fs <mote_number> <pin_number> <data_point>")
+                    continue
+
+                mote_number = int(user_input[1])
+                pin_number = int(user_input[2])
+                data_point = float(user_input[3])
+
                 print(
-                    f"Flagging pin {args.pin_number} on Mote {args.mote_number} and inputting the single value {args.data_point}"
+                    f"Flagging pin {pin_number} on Mote {mote_number} and inputting the single value {data_point}"
                 )
 
-                if args.data_point > (2**32 - 1):
+                if data_point > (2**32 - 1):
                     print("Value is too big!")
-                elif not motes_flagged[str(args.mote_number)]:
-                    print("No pins in mote {args.mote_number}flagged: calling initial flagging protocol.")
-                    
-                    motes_flagged[str(args.mote_number)] = initial_flag(
+                elif not motes_flagged[str(mote_number)]:
+                    print(f"No pins in mote {mote_number} flagged: calling initial flagging protocol.")
+
+                    motes_flagged[str(mote_number)] = initial_flag(
                         csv_path,
                         mote_list,
-                        args.mote_number,
-                        args.pin_number,
-                        args.data_point,
+                        mote_number,
+                        pin_number,
+                        data_point,
                     )
 
                 else:
-
                     flag(
                         csv_path,
                         mote_list,
-                        args.mote_number,
-                        args.pin_number,
-                        args.data_point,
+                        mote_number,
+                        pin_number,
+                        data_point,
                     )
-            elif mote_list == None:
-                print("Please use the command: s path/to/config_file")
+            else:
+                print("Unknown command. Try 'fs' to flag a sensor or 'e' to exit.")
 
         except Exception as e:
-            print(f"{e}")
+            print(f"Error: {e}")
+
+
+# Main function
+if __name__ == "__main__":
+    main()
 
 
 # Main function
