@@ -229,8 +229,7 @@ class mote:
                                             self.source_ip[-1],
                                             human_name,
                                             pin_num,
-                                            get_interface_name(pin_num),
-                                            False,
+                                            get_interface_name(pin_num)
                                         ]
                                     )
                                     
@@ -287,7 +286,7 @@ def send_heartbeat(mote, message):
         time.sleep(1)
 
 
-def flag(sensor_path, mote_list, mote_num, pin, data):
+def flag(sensor_path, flags_path, mote_list, mote_num, pin, data):
     flagged_mote = None
     for n in mote_list:
         if str(mote_num) == n.source_ip[-1]:
@@ -295,7 +294,7 @@ def flag(sensor_path, mote_list, mote_num, pin, data):
             flagged_mote = n
 
     if flagged_mote != None:
-        modify_csv_for_flag(sensor_path, mote_num, pin, data)
+        modify_csv_for_flag(sensor_path, flags_path, mote_num, pin, data)
         # remove that pin to avoid any conflict of packets
         if pin in flagged_mote.sensors:
             print(f"Flagging new pin {pin} with flagged value {data}")
@@ -362,8 +361,9 @@ def initiate_flagging(mote_obj):
     mote_obj.send_specific_data()
 
 
-def initial_flag(sensor_path, mote_list, mote_num, pin, data):
+def initial_flag(sensor_path, flags_path, mote_list, mote_num, pin, data):
     flagged_mote = None
+
     for n in mote_list:
         if str(mote_num) == n.source_ip[-1]:
             flagged_mote = n
@@ -374,10 +374,11 @@ def initial_flag(sensor_path, mote_list, mote_num, pin, data):
             print("Please double check if the mote and pin pair exists.")
             return False
         else:
-            modify_csv_for_flag(sensor_path, mote_num, pin, data)
+            modify_csv_for_flag(sensor_path, flags_path, mote_num, pin, data)
             # remove that pin to avoid any conflict of packets
             flagged_mote.flagged_sensors[pin] = float(data)
             flagged_mote.sensors.pop(pin)
+
 
             thread4 = threading.Thread(target=initiate_flagging, args=(flagged_mote,), daemon=True)
             thread4.start()
@@ -387,23 +388,33 @@ def initial_flag(sensor_path, mote_list, mote_num, pin, data):
         print("Error!")
         return False
 
+def find_pin_to_human_name(sensor_path,mote,pin_num): 
 
-def modify_csv_for_flag(sensor_path, mote_num, pin_num, value):
-    # ["mote", "human name",  "pin number", "interface", "flag","flag value"]
-    sensors = []
+    try: 
+        with open(sensor_path, "r") as file: 
+            reader = csv.reader(file)
+            for line in reader: 
+                if line[0] == str(mote) and line[2] == str(pin_num): 
+                    return line[1]
+            print("Please make sure the pin/mote pair exists")
+    except Exception as e: 
+        print(f"Error:{e}")
 
-    with open(sensor_path, "r") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if row[0] == str(mote_num) and row[2] == str(pin_num):
-                row = [row[0], row[1], row[2], row[3], True, value]
-            sensors.append(row)
+def modify_csv_for_flag(sensor_path, flags_path, mote_num, pin_num, value):
+    # ["mote", "human name",  "pin number", "flagged value"]
 
-    
+    try: 
+     
+        with open(flags_path, "a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(
+                [str(mote_num), find_pin_to_human_name(sensor_path,mote_num, pin_num), str(pin_num), value]
+            )
+    except Exception as e: 
+        print(e)
 
-    with open(sensor_path, "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(sensors)
+
+
 
 
 def setup():
@@ -435,7 +446,7 @@ def setup():
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(
-            ["mote", "human name", "pin number", "interface", "flag", "flag value"]
+            ["mote", "human name", "pin number", "interface"]
         )
 
     # Create actuators CSV file
@@ -445,21 +456,17 @@ def setup():
         writer = csv.writer(f)
         writer.writerow(["mote", "human name", "pin number", "interface", "state"])
 
+    #create flags csv file
+
+    flags_path = os.path.join(directory_name, "flags.csv" )
+    with open(flags_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["mote", "human name", "pin", "flagged value"])
+
+
     print("Intialized!")
 
-    return mote_path, csv_path, actuator_path
-
-
-import time
-import threading
-import scapy.all as scapy
-import random
-import platform
-import csv
-import struct
-import sys
-import argparse
-import os
+    return mote_path, csv_path, actuator_path, flags_path
 
 
 
@@ -468,6 +475,7 @@ def main():
     csv_path = None
     actuator_path = None
     mote_list = None
+    flags_path = None
     motes_flagged = {}
 
     # Print operating system
@@ -489,7 +497,7 @@ def main():
     )
     args = parser.parse_args()
 
-    mote_path, csv_path, actuator_path = setup()
+    mote_path, csv_path, actuator_path, flags_path= setup()
     mote_list = spawn_motes(args.configuration, mote_path, csv_path, actuator_path)
 
     for i in mote_list:
@@ -529,19 +537,21 @@ def main():
 
                     motes_flagged[str(mote_number)] = initial_flag(
                         csv_path,
+                        flags_path,
                         mote_list,
                         mote_number,
                         pin_number,
-                        data_point,
+                        data_point
                     )
 
                 else:
                     flag(
-                        csv_path,
+                       csv_path,
+                        flags_path,
                         mote_list,
                         mote_number,
                         pin_number,
-                        data_point,
+                        data_point
                     )
             else:
                 print("Unknown command. Try 'fs' to flag a sensor or 'e' to exit.")
@@ -554,8 +564,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-# Main function
-if __name__ == "__main__":
-    main()
 
