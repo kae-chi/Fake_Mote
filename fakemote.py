@@ -401,7 +401,7 @@ def setup():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     logs_folder = os.path.join(current_dir, "logs")
 
-    formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    formatted_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
     # create a folder if it does not exists
     if not os.path.exists(logs_folder):
         print("Initialzing logs directory.")
@@ -410,6 +410,7 @@ def setup():
     # Create unique folder for persistence
     directory_name = os.path.join(logs_folder, f"{formatted_time}")
     try:
+        print(directory_name)
         os.mkdir(directory_name)
     except OSError as e:
         print(f"Failed to create directory: {e}.")
