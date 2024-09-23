@@ -43,6 +43,16 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
   % pip install scapy 
  ```
 
+Do not do both 3 and 4, choose the appropriate action based on your OS: 
+
+3. Install Npcap (For windows)
+    -https://npcap.com/#download
+
+4. Install libcap using homebrew
+    ```
+    % brew update
+    % brew install libcap
+    ```
 
 
 ### Linux 
