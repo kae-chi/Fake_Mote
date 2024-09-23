@@ -92,7 +92,7 @@ class mote:
         self.dest_ip = None
         self.dest_port = 8888
         self.src_port = 12345
-        self.interface = None
+        # self.interface = None
         self.ip_filters = []
         self.sensors = {}
         self.actuators = {}
@@ -102,15 +102,15 @@ class mote:
         self.actuator_path = actuator_path
         self.flagged_sensors = {}
 
-        if platform.system() == "Windows":
+        # if platform.system() == "Windows":
 
-            self.interface = "Ethernet"
-        elif platform.system() == "Darwin":
+        #     self.interface = "Ethernet"
+        # elif platform.system() == "Darwin":
 
-            self.interface = "en0"
-        else:
+        #     self.interface = "en0"
+        # else:
 
-            self.interface = "eth0"
+        #     self.interface = "eth0"
 
     def set_dest_ip(self, input):
         self.dest_ip = input
@@ -215,7 +215,7 @@ class mote:
                                     
 
     def start_sniffing(self):
-        scapy.sniff(iface=self.interface, prn=self.packet_handler)
+        scapy.sniff( prn=self.packet_handler)
 
     def fuzzing(self):
         while True:
@@ -458,6 +458,9 @@ def main():
     mote_list = None
     flags_path = None
     motes_flagged = {}
+
+
+    print(scapy.get_if_list())
 
     # Print operating system
     print("Welcome to fakemote. Use -h to see what commands you can use.")
