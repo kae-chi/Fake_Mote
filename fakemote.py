@@ -11,59 +11,39 @@ import os
 
 # helper function for getting interfaces
 
-
 def get_interface_name(interface_number):
     if interface_number == 5:
-        return "servoPWM_12V"
+        return 'servoPWM_12V'
     if interface_number == 41:
-        return "Bang-Bang"
+        return 'Bang-Bang'
     if interface_number == 42:
-        return "FireX"
+        return 'FireX'
     if interface_number == 43:
-        return "Heartbeat"
+        return 'Heartbeat'
     if interface_number == 44:
-        return "Clear_Config"
+        return 'Clear_Config'
     if interface_number == 45:
-        return "Start_Log"
+        return 'Start_Log'
     if interface_number == 46:
-        return "Watchdog"
+        return 'Watchdog'
+    
+    interface_list = ['Teensy ADC', 'i2c ADC 1ch', 'i2c ADC 2ch',
+                      'FlowMeterCounter', 'servoPWM', 'Binary GPIO',
+                      'i2c ADC 2ch PGA2', 'i2c ADC 2ch PGA4', 'i2c ADC 2ch PGA8', 
+                      'i2c ADC 2ch PGA16', 'i2c ADC 2ch PGA32', 'i2c ADC 2ch PGA64', 
+                      'i2c ADC 2ch PGA128', 'ADC Internal Temp', 'SPI_ADC_1ch', 
+                      'SPI_ADC_2ch', 'SPI_ADC_2ch PGA2', 'SPI_ADC_2ch PGA4', 
+                      'SPI_ADC_2ch PGA8', 'SPI_ADC_2ch PGA16', 'SPI_ADC_2ch PGA32', 
+                      'SPI_ADC_2ch PGA64', 'SPI_ADC_2ch PGA128', 'BMP_ALT', 
+                      'Icarus_IMU', 'Volt_Monitor', 'Loop_Timer', 'BMP_TEMP', 'BMP_Pressure']
 
-    interface_list = [
-        "Teensy ADC",
-        "i2c ADC 1ch",
-        "i2c ADC 2ch",
-        "FlowMeterCounter",
-        "servoPWM",
-        "Binary GPIO",
-        "i2c ADC 2ch PGA2",
-        "i2c ADC 2ch PGA4",
-        "i2c ADC 2ch PGA8",
-        "i2c ADC 2ch PGA16",
-        "i2c ADC 2ch PGA32",
-        "i2c ADC 2ch PGA64",
-        "i2c ADC 2ch PGA128",
-        "ADC Internal Temp",
-        "SPI_ADC_1ch",
-        "SPI_ADC_2ch",
-        "SPI_ADC_2ch PGA2",
-        "SPI_ADC_2ch PGA4",
-        "SPI_ADC_2ch PGA8",
-        "SPI_ADC_2ch PGA16",
-        "SPI_ADC_2ch PGA32",
-        "SPI_ADC_2ch PGA64",
-        "SPI_ADC_2ch PGA128",
-        "BMP_ALT",
-        "Icarus_IMU",
-        "Volt_Monitor",
-        "Loop_Timer",
-        "BMP_TEMP",
-        "BMP_Pressure",
-    ]
+    # Subtract 1 because interface numbers start at 1
+    index = interface_number - 1
+    if 0 <= index < len(interface_list):
+        return interface_list[index]
+    else:
+        return "Unknown Interface Number"
 
-    if 1 <= interface_number <= len(interface_list):
-        return interface_list[interface_number - 1]
-
-    return None
 
 
 def sensor_human_name(n, pin_num):
@@ -439,7 +419,7 @@ def setup():
     mote_path = os.path.join(directory_name, "mote_config.csv")
     with open(mote_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["mote number", "IP", "At least one senosr flagged"])
+        writer.writerow(["mote number", "IP"])
 
     # Create sensors CSV file
     csv_path = os.path.join(directory_name, "sensors.csv")

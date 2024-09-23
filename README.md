@@ -33,6 +33,7 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 
 ### Windows and Mac
+---
 
 1. Install pip 
     -  https://pip.pypa.io/en/stable/installation/ 
@@ -45,6 +46,7 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 
 ### Linux 
+---
 
 1. Install libpcap 
 
@@ -89,27 +91,51 @@ At this point, the GUI webpage should open in your browser
 
 Fake MOTE should be running at this point in the corresponding terminal 
 
-## Important Command Lines
+## Command Lines
 
-> Fake MOTE must be running at this point for any of the following command lines to work
 
-1. Spawning (fake) motes 
+1. **Spawning (fake) motes** - Spawns and sets up motes based on configuration file. 
 ```
-% -s <path/to/config/file>
+% s <path/to/config/file>
 ```
-Spawns and sets up motes based on configuration file. 
 
-2. Flagging pins 
+
+2. **Flagging pins** - Flags a single pin based off of data points
 ```
-% -fs  <mote_number>  <pin number> <data point>
+% fs  <mote_number> <pin number> <data point>
+```
 
-Flags a single pin based off of data points
+
+3. **Exiting out the program** - exits out of program, disconnecting motes
+```
+% e 
+```
+
 
 
 ## CSV Logging 
 
-There exists a csv log for each component of the mote they are located in logs/, in the folder of when you called the -s command. 
-To find the appropriate one, the file name is function.csv. For sensors, it would be sensors.csv. 
+There exists a csv log for each component of the mote they are located in logs/, each log will be stored in a folder with a name formatted as **year-month-date-hour-minute-second** of when you first called the ```s``` function. 
+
+In this folder you will find the following CSV Files
+
+1. **mote_config.csv**- stores informations of the generated motes from the configuration file. The format is as follows: mote number and the IP. 
+
+2. **sensors.csv** - stores all sensors data from the GUI. The format is as follows: mote number, human name, pin number, and interface. 
+
+3. **actuators.csv** - stores all actuators data received from GUI. The format is as follows: mote number, human name, pin number, interface, and state. 
+    > - Even after fakemote is connected to GUI, there will be no entries unless the actuator state is changed from its original configuration. 
+     > - There will be repetition in entries, representing 
+     each time an actuator state is changed
+ 
+   
+4. **flags.csv** - stores all sensors and the data which they are flagged with. The format is as follows: mote number, human name, pin number, and the flagged value. 
+    > - Until a pin is flagged, nothing will appear in the csv file. 
+    >  - There will be repetition in entries if a pin's flagged value is changed multiple times. 
+
+      
+
+
 
 
 
