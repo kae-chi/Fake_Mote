@@ -153,7 +153,7 @@ class mote:
                             self.sensors = {}
                             self.actuators = {}
                         else:
-                            print("Data recieved, now parsing.")
+                        
 
                             pin_num = data[0]
 

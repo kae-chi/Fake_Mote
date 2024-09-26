@@ -28,48 +28,41 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 3. **Scapy library for Python** 
  - https://scapy.net/ 
 
+4. Libcap/NPcap 
+ - https://npcap.com/ 
+ - https://www.tcpdump.org/
 
-## How To Install Scapy 
+## How To Install Dependencies
 
-
-### Windows and Mac
+### Linux and MAC 
 ---
 
 1. Install pip 
     -  https://pip.pypa.io/en/stable/installation/ 
 
-2. Open terminal (mac) / powershell (windows) and enter the following: 
+2. Run the following line, which alllows the Makefile to install nessecary dependencies: 
+```
+ make install
+``` 
+
+### Windows 
+---
+
+1. Install pip 
+    -  https://pip.pypa.io/en/stable/installation/ 
+
+2. Open powershell and enter the following: 
  ```
   % pip install scapy 
  ```
 
-Do not do both 3 and 4, choose the appropriate action based on your OS: 
-
-3. Install Npcap (For windows)
-    -https://npcap.com/#download
-
-4. Install libcap using homebrew
-    ```
-    % brew update
-    % brew install libcap
-    ```
+3. Install Npcap from the website
+    - https://npcap.com/ 
 
 
-### Linux 
----
-
-1. Install libpcap 
-
- **For debian and ubuntu**
-```
-% sudo apt-get install libpcap-dev  
- ```
-
-2. Install scapy via   `pip` or `apt`
 
 
-Please consult the following link (scapy documentation) for any additional information. 
-https://scapy.readthedocs.io/en/latest/installation.html 
+
 
 ## How to launch GUI 
 
@@ -94,9 +87,8 @@ At this point, the GUI webpage should open in your browser
 1. Open terminal (mac) or git bash (windows) and enter the following: 
 
 ```
-%cd ../fakemote
-% python3 fakemote.py
-
+% cd ../fakemote
+% python3 fakemote.py  <path/to/config/file>
 ```
 
 Fake MOTE should be running at this point in the corresponding terminal 
@@ -104,19 +96,13 @@ Fake MOTE should be running at this point in the corresponding terminal
 ## Command Lines
 
 
-1. **Spawning (fake) motes** - Spawns and sets up motes based on configuration file. 
-```
-% s <path/to/config/file>
-```
-
-
-2. **Flagging pins** - Flags a single pin based off of data points
+1. **Flagging pins** - Flags a single pin based off of data points
 ```
 % fs  <mote_number> <pin number> <data point>
 ```
 
 
-3. **Exiting out the program** - exits out of program, disconnecting motes
+2. **Exiting out the program** - exits out of program, disconnecting motes
 ```
 % e 
 ```
