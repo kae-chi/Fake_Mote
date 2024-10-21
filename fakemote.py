@@ -92,7 +92,6 @@ class mote:
         self.dest_ip = None
         self.dest_port = 8888
         self.src_port = 12345
-        # self.interface = None
         self.ip_filters = []
         self.sensors = {}
         self.actuators = {}
@@ -101,16 +100,10 @@ class mote:
         self.mote_path = mote_path
         self.actuator_path = actuator_path
         self.flagged_sensors = {}
+        self.threads = []
+        self.running = False 
+        self.flagged = False
 
-        # if platform.system() == "Windows":
-
-        #     self.interface = "Ethernet"
-        # elif platform.system() == "Darwin":
-
-        #     self.interface = "en0"
-        # else:
-
-        #     self.interface = "eth0"
 
     def set_dest_ip(self, input):
         self.dest_ip = input
@@ -127,7 +120,6 @@ class mote:
                 self.ip_filters.append(e)
 
     def packet_handler(self, packet):
-        # print(packet)
 
         if scapy.IP in packet:
             # print("nice")
@@ -215,10 +207,10 @@ class mote:
                                     
 
     def start_sniffing(self):
-        scapy.sniff( prn=self.packet_handler)
+        scapy.sniff(prn=self.packet_handler, stop_filter=lambda x: not self.running)
 
     def fuzzing(self):
-        while True:
+        while self.running:
             if len(self.sensors) > 0:
                 the_sensors = list(self.sensors)
                 packet = bytearray(5 * len(the_sensors))
@@ -239,7 +231,7 @@ class mote:
 
     def send_specific_data(self):
 
-        while True:
+        while self.running:
             if len(self.flagged_sensors) > 0:
 
                 the_sensors = list(self.flagged_sensors)
@@ -261,7 +253,8 @@ class mote:
 
 
 def send_heartbeat(mote, message):
-    while True:
+    mote.running = True 
+    while mote.running:
         mote.send_packet(message)
         time.sleep(1)
 
@@ -316,6 +309,9 @@ def spawn_mote_threads(path, mote_path, csv_path, actuator_path):
         thread1 = threading.Thread(target=send_heartbeat, args=(mote_n, bytes([0])), daemon=True)
         thread2 = threading.Thread(target=mote_n.start_sniffing, daemon=True)
         thread3 = threading.Thread(target=mote_n.fuzzing, daemon=True)
+        mote_n.threads.append(thread1)
+        mote_n.threads.append(thread2)
+        mote_n.threads.append(thread3)
 
         thread1.start()
         thread2.start()
@@ -362,6 +358,9 @@ def initial_flag(sensor_path, flags_path, mote_list, mote_num, pin, data):
 
             thread4 = threading.Thread(target=initiate_flagging, args=(flagged_mote,), daemon=True)
             thread4.start()
+
+            flagged_mote.threads.append(thread4)
+            flagged_mote.flagged = True 
             return True
 
     else:
@@ -393,6 +392,48 @@ def modify_csv_for_flag(sensor_path, flags_path, mote_num, pin_num, value):
     except Exception as e: 
         print(e)
 
+
+
+def pause_mote(mote_num, mote_list): 
+    for n in mote_list:
+        if str(mote_num) == n.source_ip[-1]:
+            flagged_mote = n
+            break
+
+    flagged_mote.running = False 
+
+    for thread in flagged_mote.threads: 
+        thread.join()
+
+
+
+def start_mote(mote_num, mote_list): 
+     for n in mote_list:
+        if str(mote_num) == n.source_ip[-1]:
+            flagged_mote = n
+            break
+     flagged_mote.running = True 
+
+        
+     thread1 = threading.Thread(target=send_heartbeat, args=(flagged_mote, bytes([0])), daemon=True)
+     thread2 = threading.Thread(target=flagged_mote.start_sniffing, daemon=True)
+     thread3 = threading.Thread(target=flagged_mote.fuzzing, daemon=True)
+     flagged_mote.threads.append(thread1)
+     flagged_mote.threads.append(thread2)
+     flagged_mote.threads.append(thread3)
+
+     thread1.start()
+     thread2.start()
+     thread3.start()
+
+     if flagged_mote.flagged: 
+        thread4 = threading.Thread(target=initiate_flagging, args=(flagged_mote,), daemon=True)
+        thread4.start()
+    
+
+
+        
+    
 
 
 
@@ -460,8 +501,6 @@ def main():
     motes_flagged = {}
 
 
-    print(scapy.get_if_list())
-
     # Print operating system
     print("Welcome to fakemote. Use -h to see what commands you can use.")
 
@@ -492,7 +531,7 @@ def main():
   
     while True:
         try:
-            user_input = input(">> ").strip().split()
+            user_input = input("(fakemote) ").strip().split()
             if not user_input:
                 continue
 
@@ -537,6 +576,20 @@ def main():
                         pin_number,
                         data_point
                     )
+            elif command == "d": 
+                if len(user_input) < 2:
+                    print("Usage: d <mote_number>" ) 
+                    continue
+                mote_number = int(user_input[1])
+                pause_mote(mote_number, mote_list)
+
+            elif command == "a": 
+                 if len(user_input) < 2:
+                    print("Usage: a <mote_number>" ) 
+                    continue
+                 mote_number = int(user_input[1])
+                 start_mote(mote_number, mote_list)
+             
             else:
                 print("Unknown command. Try 'fs' to flag a sensor or 'e' to exit.")
 

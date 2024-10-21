@@ -34,7 +34,7 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 
 ## How To Install Dependencies
 
-### Linux and MAC 
+### Linux and Mac
 ---
 
 1. Install pip 
@@ -43,6 +43,12 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 2. Run the following line, which alllows the Makefile to install nessecary dependencies: 
 ```
  make install
+``` 
+
+3. Run the following line, to run both the virtual enviorment and the program
+
+```
+make run <my/file/path>
 ``` 
 
 ### Windows 

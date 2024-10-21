@@ -17,6 +17,12 @@ install:
 	$(libcap_install)
 	./$(VENV)/bin/pip install -r requirements.txt
 
+#run virtual enviorment
+run:
+	@read -p "Enter file path: " path; \
+	echo "You entered: $$path"; \
+	. venv/bin/activate && python3 fakemote.py $$path
+
 #Clean up VENV
 clean:
 	rm -rf $(VENV)
