@@ -2,17 +2,18 @@
 
 
 ## Purpose and Design Philosophy: 
+Fake MOTE is a command line script and testing framework for the BURPG Web-Based Graphic User Interface (Web GUI). 
+On a high level, the program creates "virtual hardware" by utilizing the scapy library to IP spoof as hardware, undo bitmasking operations, and perform the appropriate network protocols to mimic MOTE behavior. 
 
-Fake MOTE is a command line python script which is meant to interact with the the Web-Based Graphic User Interaface (Web GUI) 
-by sending data through UDP packages, ultimately mimicking data being sent from both MOTES. 
+The design philosophy behind the following program is the act of "HOOTL", or hardware out-of-the-loop testing. 
 
-The design philosophy behind the following program is the act of "hoodle", or hardware out of the loop testing. 
-Given the spacial limitations fo the lap, we cannot always  ave the MOTE lying out at all times. 
-By creating a program which allows the MOTE's behaviors to be remotely accessiable at all times, I hope the following are achieved: 
+By creating a software framework that allows a singular or network of MOTEs to be remotely accessible at all times, I hope the following are achieved: 
 
-1. Significant amounts of time when testing firmware and software 
+1. Significant amounts of time saved when testing firmware and software 
 
-2. Allow for flexibility by offering a remote option for projects which may involve physically connecting MOTE during the testing phase 
+2. Allow for flexibility by offering a remote option for projects that may involve physically connecting MOTE during the testing phase]
+
+3. Serve as a tool for data replay of previous testing operations and simulate potential new scenarios. 
 
 
 ## Dependencies: 
@@ -28,7 +29,7 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 3. **Scapy library for Python** 
  - https://scapy.net/ 
 
-4. Libcap/NPcap 
+4. **Libcap/NPcap**
  - https://npcap.com/ 
  - https://www.tcpdump.org/
 
@@ -40,12 +41,12 @@ By creating a program which allows the MOTE's behaviors to be remotely accessiab
 1. Install pip 
     -  https://pip.pypa.io/en/stable/installation/ 
 
-2. Run the following line, which alllows the Makefile to install nessecary dependencies: 
+2. Run the following line, which allows the Makefile to install the necessary dependencies: 
 ```
  make install
 ``` 
 
-3. Run the following line, to run both the virtual enviorment and the program
+3. Run the following line, to run both the virtual environment and the program
 
 ```
 make run <my/file/path>
@@ -57,7 +58,7 @@ make run <my/file/path>
 1. Install pip 
     -  https://pip.pypa.io/en/stable/installation/ 
 
-2. Open powershell and enter the following: 
+2. Open Powershell and enter the following: 
  ```
   % pip install scapy 
  ```
@@ -72,7 +73,7 @@ make run <my/file/path>
 
 ## How to launch GUI 
 
-1. Open terminal (mac) or git bash (windows) and enter the following
+1. Open terminal (Mac) or git bash (windows) and enter the following
 
 ```
 % git clone https://phab.burpg.space/diffusion/80/webgui.git
@@ -97,12 +98,14 @@ At this point, the GUI webpage should open in your browser
 % python3 fakemote.py  <path/to/config/file>
 ```
 
-Fake MOTE should be running at this point in the corresponding terminal 
+Fake MOTE should be running at this point in the corresponding terminal. 
 
-## Command Lines
+## Command Line Functions 
+
+> will update more on this documentation once the data replay feature is fully implemented 
 
 
-1. **Flagging pins** - Flags a single pin based off of data points
+1. **Flagging pins** - Flags a single pin based on data points
 ```
 % fs  <mote_number> <pin number> <data point>
 ```
@@ -111,6 +114,15 @@ Fake MOTE should be running at this point in the corresponding terminal
 2. **Exiting out the program** - exits out of program, disconnecting motes
 ```
 % e 
+```
+3. **Disconnecting a Mote**- Disconnects a single MOTE
+```
+d <mote_number>
+``` 
+4. **Re-connecting/Adding a Mote** - Reconnects and enables all mote previously running MOTEfeatures
+
+```
+a <mote_number>
 ```
 
 
@@ -121,7 +133,7 @@ There exists a csv log for each component of the mote they are located in logs/,
 
 In this folder you will find the following CSV Files
 
-1. **mote_config.csv**- stores informations of the generated motes from the configuration file. The format is as follows: mote number and the IP. 
+1. **mote_config.csv**- stores information of the generated motes from the configuration file. The format is as follows: mote number and the IP. 
 
 2. **sensors.csv** - stores all sensors data from the GUI. The format is as follows: mote number, human name, pin number, and interface. 
 
